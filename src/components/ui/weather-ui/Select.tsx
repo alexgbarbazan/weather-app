@@ -17,6 +17,8 @@ type SelectInputProps<T extends Option> = {
   updateSelection: (option: T) => void;
   placeholder?: string;
   selectedOption?: T;
+  selectTriggerClassName?: string;
+  prefix?: JSX.Element;
 };
 
 export default function Select<T extends Option>({
@@ -24,6 +26,8 @@ export default function Select<T extends Option>({
   updateSelection,
   selectedOption,
   placeholder,
+  selectTriggerClassName,
+  prefix,
 }: SelectInputProps<T>) {
   function handleSelection(value: string) {
     // Find the selected option based on the value passed by onValueChange
@@ -39,8 +43,10 @@ export default function Select<T extends Option>({
       value={String(selectedOption?.value)}
       onValueChange={handleSelection}
     >
-      <SelectTrigger>
-        <SelectValue placeholder={placeholder} />
+      <SelectTrigger className={`${selectTriggerClassName}`}>
+        <div className="flex items-center">
+          {prefix} <SelectValue placeholder={placeholder} />
+        </div>
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>

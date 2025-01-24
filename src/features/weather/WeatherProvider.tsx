@@ -5,12 +5,13 @@ import {
   useReducer,
   useRef,
 } from "react";
-import { Option } from "../../components/ui/weather-ui/Select";
 import { DayOption, PeriodOption, ProcessedPeriods } from "./types";
 import { daysOptions, dayPeriods } from "./constants";
-import { getInitialStartDate } from "./utils";
-import { processWeatherData } from "./utils/process-weather-data";
+import { getInitialStartDate, updateStartDate } from "./utils";
+import { processHourlyWeatherData } from "./utils/process-weather-data";
 import { fetchWeatherData } from "./api";
+import { WeatherAPIResponse } from "./types/weather-api";
+import { toast } from "react-toastify";
 
 export type WeatherState = {
   selectedDay: DayOption;
@@ -18,16 +19,24 @@ export type WeatherState = {
   selectedLocationDisplay: string;
   selectedLocation: string;
   selectedPeriod: PeriodOption;
-  chartData: {
-    startData: ProcessedPeriods | undefined;
-    endData: ProcessedPeriods | undefined;
+  weatherCards: {
+    startData: {
+      dayData: WeatherAPIResponse | undefined;
+      chartData: ProcessedPeriods | undefined;
+    };
+    endData: {
+      dayData: WeatherAPIResponse | undefined;
+      chartData: ProcessedPeriods | undefined;
+    };
   };
+  weatherDataCache: Record<string, WeatherCardData>; 
 };
 
 type WeatherContextType = WeatherState & {
   updateLocation: (location: string) => void;
   updateDayOfTheWeek: (selectedDay: DayOption) => void;
-  updatePeriod: (selectedPeriod: Option) => void;
+  updatePeriod: (selectedPeriod: PeriodOption) => void;
+  handleNavigate: (multiplier: 1 | -1) => void;
 };
 
 export enum WeatherActionType {
@@ -35,18 +44,27 @@ export enum WeatherActionType {
   SetSelectedLocation = "SET_SELECTED_LOCATION",
   SetSelectedDay = "SET_SELECTED_DAY",
   SetSelectedPeriod = "SET_SELECTED_PERIOD",
-  SetChartData = "SET_CHART_DATA",
+  SetWeatherCards = "SET_WEATHER_CARDS",
+  SetWeatherDataCache = "SET_WEATHER_DATA_CACHE",
+  SetStartDate = "SET_START_DATE",
+}
+
+type WeatherCardData = {
+  chartData: ProcessedPeriods | undefined;
+  dayData: WeatherAPIResponse | undefined;
 }
 
 export type WeatherActionPayloadMap = {
   [WeatherActionType.SetSelectedDay]: DayOption;
   [WeatherActionType.SetSelectedLocationDisplay]: string;
   [WeatherActionType.SetSelectedLocation]: string;
-  [WeatherActionType.SetSelectedPeriod]: Option;
-  [WeatherActionType.SetChartData]: {
-    startData: ProcessedPeriods | undefined;
-    endData: ProcessedPeriods | undefined;
+  [WeatherActionType.SetSelectedPeriod]: PeriodOption;
+  [WeatherActionType.SetWeatherCards]: {
+    startData: WeatherCardData;
+    endData: WeatherCardData;
   };
+  [WeatherActionType.SetWeatherDataCache]: Record<string, WeatherCardData>;
+  [WeatherActionType.SetStartDate]: number;
 };
 
 export type WeatherAction<K extends WeatherActionType = WeatherActionType> =
@@ -66,14 +84,22 @@ function createInitialState(): WeatherState {
     selectedLocationDisplay: "",
     selectedLocation: "",
     selectedPeriod: dayPeriods[0],
-    chartData: {
-      startData: undefined,
-      endData: undefined,
+    weatherCards: {
+      startData: {
+        dayData: undefined,
+        chartData: undefined,
+      },
+      endData: {
+        dayData: undefined,
+        chartData: undefined,
+      }
     },
+    weatherDataCache: {},
   };
 }
 
 const WeatherContext = createContext<WeatherContextType | undefined>(undefined);
+
 
 function weatherReducer(
   state: WeatherState,
@@ -88,8 +114,12 @@ function weatherReducer(
       return { ...state, selectedLocation: action.payload };
     case WeatherActionType.SetSelectedPeriod:
       return { ...state, selectedPeriod: action.payload };
-    case WeatherActionType.SetChartData:
-      return { ...state, chartData: action.payload };
+    case WeatherActionType.SetWeatherCards:
+      return { ...state, weatherCards: action.payload };
+    case WeatherActionType.SetWeatherDataCache:
+      return { ...state, weatherDataCache: action.payload };
+    case WeatherActionType.SetStartDate:
+      return { ...state, startDate: action.payload };
     default:
       return state;
   }
@@ -115,49 +145,134 @@ export function WeatherProvider({ children }: { children: React.ReactNode }) {
         type: WeatherActionType.SetSelectedLocation,
         payload: value,
       });
+
+      dispatch({
+        type: WeatherActionType.SetWeatherDataCache,
+        payload: {},
+      });
     }, 1000);
   }
 
   async function getWeatherData() {
-    const { startData, endData } = await fetchWeatherData({
-      location: state.selectedLocation,
+    const startDate = state.startDate;
+    const endDate = state.startDate + 7 * 3600 * 24;
+
+    if (state.weatherDataCache[startDate] && state.weatherDataCache[endDate]) {
+      dispatch({
+        type: WeatherActionType.SetWeatherCards,
+        payload: {
+          startData: state.weatherDataCache[startDate],
+          endData: state.weatherDataCache[endDate],
+        },
+      });
+      return;
+    }
+
+    try{
+      const { startData, endData } = await fetchWeatherData({
+        location: state.selectedLocation,
+        startDate,
+        endDate,
+      });
+   
+      if (!startData || !endData) return;
+  
+      const processedStartData = processHourlyWeatherData(startData.days[0]?.hours)
+      const processedEndData = processHourlyWeatherData(endData.days[0]?.hours)
+  
+      console.log({processedStartData, processedEndData})
+  
+      dispatch({
+        type: WeatherActionType.SetWeatherCards,
+        payload: {
+          startData: {
+            dayData: startData,
+            chartData: processedStartData,
+          },
+          endData: {
+            dayData: endData,
+            chartData: processedEndData,
+          }
+        },
+      });
+  
+      dispatch({
+        type: WeatherActionType.SetWeatherDataCache,
+        payload: {
+          ...state.weatherDataCache,
+          [startDate]: {
+            dayData: startData,
+            chartData: processedStartData,
+          },
+          [endDate]: {
+            dayData: endData,
+            chartData: processedEndData,
+          }
+        },
+      });
+    } catch (error: unknown) {
+      const err = error as { response: { data: string } };
+      console.log(err?.response?.data);
+      if(err?.response?.data.includes("Invalid location")) {
+        toast.error("Invalid location. Please try a different location");
+        return;
+      }
+      toast.error("Failed to fetch weather data");
+    }
+
+
+  }
+
+  function handleNavigate(multiplier: 1 | -1) {
+    const updatedStartDate = updateStartDate({
       startDate: state.startDate,
-      endDate: state.startDate + 7 * 3600 * 24,
+      multiplier,
     });
 
-    if (!startData || !endData) return;
-
     dispatch({
-      type: WeatherActionType.SetChartData,
-      payload: {
-        startData: processWeatherData(startData.days[0]),
-        endData: processWeatherData(endData.days[0]),
-      },
+      type: WeatherActionType.SetStartDate,
+      payload: updatedStartDate,
     });
   }
 
   useEffect(() => {
     if (!state.selectedLocation) return;
     getWeatherData();
-  }, [state.selectedLocation]);
+  }, [state.selectedLocation, state.startDate]);
 
+  
   return (
     <WeatherContext.Provider
       value={{
         ...state,
         updateLocation,
         updateDayOfTheWeek: (selectedDay: DayOption) => {
+
+          const updatedStartDate = getInitialStartDate(selectedDay.value);
+
+          dispatch({
+            type: WeatherActionType.SetStartDate,
+            payload: updatedStartDate,
+          });
+
+
           dispatch({
             type: WeatherActionType.SetSelectedDay,
             payload: selectedDay,
           });
+
+          dispatch({
+            type: WeatherActionType.SetWeatherDataCache,
+            payload: {},
+          });
         },
-        updatePeriod: (selectedPeriod: Option) => {
+        updatePeriod: (selectedPeriod: PeriodOption) => {
           dispatch({
             type: WeatherActionType.SetSelectedPeriod,
             payload: selectedPeriod,
           });
         },
+        handleNavigate,
       }}
     >
       {children}

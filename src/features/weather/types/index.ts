@@ -20,3 +20,9 @@ export type ProcessedPeriods = {
   afternoon: PeriodWeatherData;
   evening: PeriodWeatherData;
 };
+
+export enum ChartColorScheme {
+  Temperature = "#F97316",
+  Humidity = "#14B8A6",
+  Precipitation = "#3B82F6",
+}

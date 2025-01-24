@@ -32,6 +32,7 @@ export default function Input({
         style={{ margin: "10px 0", padding: "8px", width: "100%" }}
         placeholder={placeholder}
         prefixIcon={icon}
+        className="!m-0"
       />
     </div>
   );

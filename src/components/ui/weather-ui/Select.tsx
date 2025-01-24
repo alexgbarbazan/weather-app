@@ -32,7 +32,7 @@ export default function Select<T extends Option>({
   function handleSelection(value: string) {
     // Find the selected option based on the value passed by onValueChange
     const option = options.find((option) => String(option.value) === value);
-    console.log(option);
+    
     if (option) {
       updateSelection(option); // Update the selection in the parent component
     }

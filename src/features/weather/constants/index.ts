@@ -1,4 +1,4 @@
-import { DayOption } from "../types";
+import { DayOption, PeriodOption } from "../types";
 
 export const daysOptions: DayOption[] = [
   {
@@ -31,7 +31,7 @@ export const daysOptions: DayOption[] = [
   },
 ];
 
-export const dayPeriods = [
+export const dayPeriods: PeriodOption[] = [
   { label: "Morning", value: "morning" },
   { label: "Afternoon", value: "afternoon" },
   { label: "Evening", value: "evening" },

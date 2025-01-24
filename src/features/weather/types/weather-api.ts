@@ -22,10 +22,11 @@ export type HourWeatherData = WeatherData & {
 export type WeatherDay = WeatherData & {
     datetime: string;
     datetimeEpoch: number;
-    hours: HourWeatherData[];
+    hours?: HourWeatherData[];
 };
 
 export type WeatherAPIResponse = {
+    resolvedAddress: string;
     description: string;
     conditions: string;
     days: WeatherDay[];

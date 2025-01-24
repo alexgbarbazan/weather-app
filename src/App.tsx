@@ -18,7 +18,7 @@ function App() {
         draggable
         pauseOnHover
       />
-      <WeatherMain />;
+      <WeatherMain />
     </>
   );
 }

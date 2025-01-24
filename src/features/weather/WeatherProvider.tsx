@@ -174,6 +174,8 @@ export function WeatherProvider({ children }: { children: React.ReactNode }) {
         startDate,
         endDate,
       });
+
+      // console.log(startData?.conditions, endData?.conditions, endData?.icon, startData?.icon)
    
       if (!startData || !endData) return;
   

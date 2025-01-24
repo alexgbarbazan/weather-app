@@ -14,13 +14,9 @@ export default function WeatherInputs() {
     updateDayOfTheWeek,
     updateLocation,
     updatePeriod,
-    weatherCards,
   } = useWeatherContext();
 
-  const resolvedAddress = weatherCards.startData?.dayData?.resolvedAddress;
-
   return (
-    <>
       <div className="flex flex-col items-center justify-between max-w-5xl gap-4 p-6 mx-auto bg-white rounded-lg lg:flex-row">
         <Input
           value={selectedLocationDisplay}
@@ -58,11 +54,5 @@ export default function WeatherInputs() {
           />
         </div>
       </div>
-      {resolvedAddress && (
-        <h1 className="mt-6 text-2xl font-bold text-blue-500 m">
-          Weather for: <span className="text-gray-600">{resolvedAddress} </span>
-        </h1>
-      )}
-    </>
   );
 }

@@ -12,6 +12,7 @@ type WeatherData = {
   humidity: number; //the relative humidity as a percentage
   preciptype: ("rain" | "snow" | "freezingrain" | "ice")[]; //an array indicating the type(s) of precipitation expected or that occurred. Possible values include rain, snow, freezingrain and ice;
   snow: number; // the amount of snow that fell or is predicted to fall
+  icon: string; //a string representing the weather icon for the conditions
 };
 
 export type HourWeatherData = WeatherData & {
@@ -30,4 +31,5 @@ export type WeatherAPIResponse = {
     description: string;
     conditions: string;
     days: WeatherDay[];
+    currentConditions: WeatherData; 
 }

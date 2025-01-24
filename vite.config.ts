@@ -7,6 +7,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     allowedHosts: [".csb.app"], 
+    host: 'localhost',
+    port: 3000,
   },
   resolve: {
     alias: {

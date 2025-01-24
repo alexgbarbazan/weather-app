@@ -1,41 +1,57 @@
+import Legend from "../components/Legend";
 import WeatherChart from "../components/WeatherChart";
 import WeatherHeader from "../components/WeatherHeader";
 import WeatherInputs from "../components/WeatherInputs";
+import WeatherLocation from "../components/WeatherLocation";
 import {
   useWeatherContext,
   WeatherProvider,
 } from "../features/weather/WeatherProvider";
-import { ChartColorScheme } from "../features/weather/types";
 
-// function WeatherCard() {
-//   const { weatherCards, selectedPeriod, handleNavigate, weatherDataCache } =
-//     useWeatherContext();
+import { ChevronLeft } from "lucide-react";
 
-//   if (!weatherCards.startData || !weatherCards.endData) return null;
-
-//   return (
-//     <div className="flex justify-between w-full h-full gap-8 shadow-lg ">
-//       <WeatherChart
-//         chartData={weatherCards.startData.chartData?.[selectedPeriod.value]}
-//       />
-//     </div>
-//   );
-// }
+function NavButton({
+  handleNavigate,
+  className,
+}: {
+  handleNavigate: () => void;
+  className?: string;
+}) {
+  return (
+    <button
+      className={`[&>svg>path]:stroke-gray-500 hover:[&>svg>path]:stroke-blue-500 h-[35px] md:h-[50px] lg:h-[50px] ${className}`}
+      onClick={handleNavigate}
+    >
+      <ChevronLeft className="w-auto h-full" />
+    </button>
+  );
+}
 
 function ChartContainer() {
-  const { weatherCards, selectedPeriod } =
-    useWeatherContext();
+  const { weatherCards, selectedPeriod, handleNavigate } = useWeatherContext();
   if (!weatherCards.startData || !weatherCards.endData) return null;
   console.log({ weatherCards });
   return (
-    <div className="flex items-center gap-8 w-full h-[400px]">
-      <WeatherChart
-        chartData={weatherCards.startData.chartData?.[selectedPeriod.value]}
-        period={selectedPeriod.label}
-      />
-      <WeatherChart
-        chartData={weatherCards.endData.chartData?.[selectedPeriod.value]}
-        period={selectedPeriod.label}
+    <div className="flex items-center  w-full h-[400px]">
+      {/* <button className="[&>svg>path]:stroke-gray-500 hover:[&>svg>path]:stroke-blue-500 h-[50px]" onClick={() => handleNavigate(-1)}>
+        <ChevronLeft className="w-auto h-full " />
+      </button> */}
+      <NavButton handleNavigate={() => handleNavigate(-1)} />
+      <div className="flex items-center w-full h-full gap-8">
+        <WeatherChart
+          chartData={weatherCards.startData.chartData?.[selectedPeriod.value]}
+          period={selectedPeriod.label}
+        />
+        <div className={`w-full h-full hidden md:block`}>
+          <WeatherChart
+            chartData={weatherCards.endData.chartData?.[selectedPeriod.value]}
+            period={selectedPeriod.label}
+          />
+        </div>
+      </div>
+      <NavButton
+        handleNavigate={() => handleNavigate(1)}
+        className="rotate-180"
       />
     </div>
   );
@@ -48,37 +64,19 @@ export default function WeatherMain() {
         <WeatherHeader />
         <div className="flex flex-col items-center px-6">
           <div
-            className="flex flex-col w-full max-w-5xl"
+            className="flex flex-col w-full max-w-5xl gap-8"
             style={{ height: "calc(100vh - 80px)" }}
           >
-            <div className="w-full py-8">
+            <div className="w-full pt-8">
               <WeatherInputs />
             </div>
+            <WeatherLocation  />
+            <div className="sm:hidden">
+              <Legend />
+            </div>
             <ChartContainer />
-            <div className="flex justify-center w-full">
-              <div className="flex h-[20px] mt-6 justify-between w-[500px]">
-                <div className="flex items-center gap-2">
-                  <div
-                    className=" h-[5px] w-[10px]"
-                    style={{ background: ChartColorScheme.Temperature }}
-                  />
-                  <p>Temperature (°F) </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div
-                    className=" h-[5px] w-[10px]"
-                    style={{ background: ChartColorScheme.Humidity }}
-                  />
-                  <p>Humidity </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div
-                    className="h-[5px] w-[10px]"
-                    style={{ background: ChartColorScheme.Precipitation }}
-                  />
-                  <p>Chance of Precipitation </p>
-                </div>
-              </div>
+            <div className="hidden sm:block">
+              <Legend />
             </div>
           </div>
         </div>

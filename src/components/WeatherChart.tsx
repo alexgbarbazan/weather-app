@@ -92,10 +92,7 @@ const WeatherChart = ({ chartData, period }: WeatherChartProps) => {
         grid: {
           display: false,
         },
-        title: {
-          display: true,
-          text: "Temperature (°F)", // Updated for Fahrenheit
-        },
+        
         ticks: {
           callback: (value: string | number) => `${value}°F`, // Format temperature in Fahrenheit
         },
@@ -106,10 +103,6 @@ const WeatherChart = ({ chartData, period }: WeatherChartProps) => {
           drawOnChartArea: false, // Disable grid for this axis
         },
         position: "right",
-        title: {
-          display: true,
-          text: "%", // Label for percentage values
-        },
         ticks: {
           callback: (tickValue: string | number) => `${Number(tickValue) * 100}%`, // Format as percentage
         },
@@ -129,11 +122,6 @@ const WeatherChart = ({ chartData, period }: WeatherChartProps) => {
             borderColor: "black",
             borderWidth: 1, // Thin line width
             borderDash: [5, 5], // Dashed line
-            label: {
-              display: true,
-              content: "Start",
-              position: "start",
-            },
           },
           verticalLine2: {
             type: "line",
@@ -142,11 +130,7 @@ const WeatherChart = ({ chartData, period }: WeatherChartProps) => {
             borderColor: "black",
             borderWidth: 1, // Thin line width
             borderDash: [5, 5], // Dashed line
-            label: {
-              display: true,
-              content: "End",
-              position: "start",
-            },
+  
           },
         },
       },

@@ -58,7 +58,8 @@ export function formatDateComparison(epochTime: number): JSX.Element {
 
   return (
     <p className="mb-1 font-semibold text-gray-600">
-      <span className="font-bold text-blue-500">{prefix}</span> {displayDate}
+      <span className="font-bold text-blue-500">{prefix}</span>
+      <p>{displayDate}</p>
     </p>
   );
 }
@@ -187,7 +188,7 @@ export function getDescription(params: {
   }
 
   return (
-    <div className="w-[250px] text-right absolute top-0 right-0 p-1 px-2 shadow-sm bg-neutral-100 rounded-xl">
+    <div className="text-center sm:max-w-[225px] h-fit p-1 px-2 sm:text-right shadow-sm bg-neutral-100 rounded-xl">
       <p className="text-xs font-semibold text-gray-700">
         {tempDescription} with a {precipitationDescription} and{" "}
         {humidityDescription}

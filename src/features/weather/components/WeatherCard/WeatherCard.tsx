@@ -12,21 +12,12 @@ import {
 } from "./utils";
 
 function RightDescriptionSection({
-  chartData,
   day,
 }: {
-  chartData?: PeriodWeatherData;
   day: WeatherDay;
 }) {
   return (
-    <div className="flex flex-col justify-end h-[68px] gap-1">
-      {chartData
-        ? getPeriodDescription(chartData)
-        : getDescription({
-            averageTemp: day.temp,
-            averagePrecipitation: day.precipprob,
-            averageHumidity: day.humidity,
-          })}
+    <div className="flex flex-col justify-end gap-1">
       {getWindDetail(day)}
       {getPrecipitationDetail(day)}
     </div>
@@ -48,11 +39,22 @@ export default function WeatherCard({
   const formattedDate = formatDateComparison(day.datetimeEpoch);
 
   return (
-    <div className="flex flex-col w-full h-full p-6 space-y-4 bg-white shadow-lg rounded-xl">
-      <div className="text-lg font-semibold text-gray-700">{formattedDate}</div>
+    <div className="flex flex-col w-full gap-4 p-2 bg-white shadow-lg sm:p-6 h-fulls rounded-xl">
+      <div className="flex flex-col justify-between sm:flex-row">
+        <div className="text-lg font-semibold text-gray-700">
+          {formattedDate}
+        </div>    
+        {chartData
+          ? getPeriodDescription(chartData)
+          : getDescription({
+              averageTemp: day.temp,
+              averagePrecipitation: day.precipprob,
+              averageHumidity: day.humidity,
+            })}
+      </div>
       <div className="relative flex items-center justify-between w-full p-4 bg-blue-100 shadow-sm rounded-2xl">
         <WeatherCardTemperatureSection day={day} />
-        <RightDescriptionSection chartData={chartData} day={day} />
+        <RightDescriptionSection day={day} />
       </div>
       {chartData ? (
         <div className="h-[300px]">

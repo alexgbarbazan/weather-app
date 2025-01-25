@@ -13,6 +13,7 @@ type WeatherData = {
   preciptype: ("rain" | "snow" | "freezingrain" | "ice")[]; //an array indicating the type(s) of precipitation expected or that occurred. Possible values include rain, snow, freezingrain and ice;
   snow: number; // the amount of snow that fell or is predicted to fall
   icon: string; //a string representing the weather icon for the conditions
+  windspeed: number; //the wind speed in miles per hour
 };
 
 export type HourWeatherData = WeatherData & {

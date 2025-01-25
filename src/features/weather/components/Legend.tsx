@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { ChartColorScheme } from "../features/weather/types";
-import { useWeatherContext } from "../features/weather/WeatherProvider";
+import { ChartColorScheme } from "../types";
+import { useWeatherContext } from "../context/WeatherProvider";
 
 export default function Legend() {
   const { weatherCards } = useWeatherContext();
@@ -16,7 +16,6 @@ export default function Legend() {
 
   return (
     <div className="flex flex-col items-center w-full">
-      {/* Toggle Button for <sm */}
       {!isOpen && (
         <button
           className="flex items-center justify-center px-4 py-2 mb-4 text-sm font-bold text-white bg-blue-500 shadow-md trans2ition-colors rounded-2xl sm:hidden hover:bg-blue-600"
@@ -25,8 +24,6 @@ export default function Legend() {
           Show Legend
         </button>
       )}
-
-      {/* Legend Content */}
       {(isOpen || window.innerWidth >= 640) && (
         <div className="relative flex flex-col sm:flex-row sm:h-5 sm:justify-between w-full sm:w-[500px] bg-white p-4 rounded-lg shadow-md gap-4 sm:gap-0">
           {/* Close Button */}

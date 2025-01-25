@@ -10,10 +10,9 @@ import {
   Legend,
   ChartOptions,
 } from "chart.js";
-import { ChartColorScheme, PeriodWeatherData } from "../features/weather/types";
+import { ChartColorScheme, PeriodWeatherData } from "../types";
 import annotationPlugin from "chartjs-plugin-annotation";
 
-// Register necessary components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -65,14 +64,14 @@ const WeatherChart = ({ chartData, period }: WeatherChartProps) => {
   };
 
   const options: ChartOptions<"line"> = {
-    responsive: true, // Enables responsiveness
-    maintainAspectRatio: false, // Allows height and width control
+    responsive: true,
+    maintainAspectRatio: false,
     scales: {
       x: {
         title: {
-        display: true, // Enables the title
-        text: period, // The label for the x-axis
-      },
+          display: true,
+          text: period,
+        },
         grid: {
           display: false,
         },
@@ -92,26 +91,25 @@ const WeatherChart = ({ chartData, period }: WeatherChartProps) => {
         grid: {
           display: false,
         },
-        
+
         ticks: {
-          callback: (value: string | number) => `${value}°F`, // Format temperature in Fahrenheit
+          callback: (value: string | number) => `${value}°F`,
         },
       },
       y2: {
-        // Right Y-axis for humidity and precipitation
         grid: {
-          drawOnChartArea: false, // Disable grid for this axis
+          drawOnChartArea: false,
         },
         position: "right",
         ticks: {
-          callback: (tickValue: string | number) => `${Number(tickValue) * 100}%`, // Format as percentage
+          callback: (tickValue: string | number) =>
+            `${Number(tickValue) * 100}%`,
         },
       },
     },
     plugins: {
       legend: {
         display: false,
-        // position: "bottom", // Moves the legend to the bottom
       },
       annotation: {
         annotations: {
@@ -120,17 +118,16 @@ const WeatherChart = ({ chartData, period }: WeatherChartProps) => {
             xMin: 2,
             xMax: 2,
             borderColor: "black",
-            borderWidth: 1, // Thin line width
-            borderDash: [5, 5], // Dashed line
+            borderWidth: 1,
+            borderDash: [5, 5],
           },
           verticalLine2: {
             type: "line",
             xMin: chartData.hours.length - 3,
             xMax: chartData.hours.length - 3,
             borderColor: "black",
-            borderWidth: 1, // Thin line width
-            borderDash: [5, 5], // Dashed line
-  
+            borderWidth: 1,
+            borderDash: [5, 5],
           },
         },
       },

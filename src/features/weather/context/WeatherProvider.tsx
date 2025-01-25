@@ -5,72 +5,18 @@ import {
   useReducer,
   useRef,
 } from "react";
-import { DayOption, PeriodOption, ProcessedPeriods } from "./types";
-import { daysOptions, dayPeriods } from "./constants";
-import { getInitialStartDate, updateStartDate } from "./utils";
-import { processHourlyWeatherData } from "./utils/process-weather-data";
-import { fetchWeatherData } from "./api";
-import { WeatherAPIResponse } from "./types/weather-api";
+import { DayOption, PeriodOption } from "../types";
+import { daysOptions, dayPeriods } from "../constants";
+import { getInitialStartDate, updateStartDate } from "../utils";
+import { processHourlyWeatherData } from "../utils/process-weather-data";
+import { fetchWeatherData } from "../api";
 import { toast } from "react-toastify";
-
-export type WeatherState = {
-  selectedDay: DayOption;
-  startDate: number;
-  selectedLocationDisplay: string;
-  selectedLocation: string;
-  selectedPeriod: PeriodOption;
-  weatherCards: {
-    startData: {
-      dayData: WeatherAPIResponse | undefined;
-      chartData: ProcessedPeriods | undefined;
-    };
-    endData: {
-      dayData: WeatherAPIResponse | undefined;
-      chartData: ProcessedPeriods | undefined;
-    };
-  };
-  weatherDataCache: Record<string, WeatherCardData>; 
-};
-
-type WeatherContextType = WeatherState & {
-  updateLocation: (location: string) => void;
-  updateDayOfTheWeek: (selectedDay: DayOption) => void;
-  updatePeriod: (selectedPeriod: PeriodOption) => void;
-  handleNavigate: (multiplier: 1 | -1) => void;
-};
-
-export enum WeatherActionType {
-  SetSelectedLocationDisplay = "SET_SELECTED_LOCATION_DISPLAY",
-  SetSelectedLocation = "SET_SELECTED_LOCATION",
-  SetSelectedDay = "SET_SELECTED_DAY",
-  SetSelectedPeriod = "SET_SELECTED_PERIOD",
-  SetWeatherCards = "SET_WEATHER_CARDS",
-  SetWeatherDataCache = "SET_WEATHER_DATA_CACHE",
-  SetStartDate = "SET_START_DATE",
-}
-
-type WeatherCardData = {
-  chartData: ProcessedPeriods | undefined;
-  dayData: WeatherAPIResponse | undefined;
-}
-
-export type WeatherActionPayloadMap = {
-  [WeatherActionType.SetSelectedDay]: DayOption;
-  [WeatherActionType.SetSelectedLocationDisplay]: string;
-  [WeatherActionType.SetSelectedLocation]: string;
-  [WeatherActionType.SetSelectedPeriod]: PeriodOption;
-  [WeatherActionType.SetWeatherCards]: {
-    startData: WeatherCardData;
-    endData: WeatherCardData;
-  };
-  [WeatherActionType.SetWeatherDataCache]: Record<string, WeatherCardData>;
-  [WeatherActionType.SetStartDate]: number;
-};
-
-export type WeatherAction<K extends WeatherActionType = WeatherActionType> =
-  K extends keyof WeatherActionPayloadMap
-    ? { type: K; payload: WeatherActionPayloadMap[K] }
-    : never;
+import {
+  WeatherState,
+  WeatherContextType,
+  WeatherAction,
+  WeatherActionType,
+} from "../types/weather-provider";
 
 function createInitialState(): WeatherState {
   const selectedDay = daysOptions.find(
@@ -92,14 +38,13 @@ function createInitialState(): WeatherState {
       endData: {
         dayData: undefined,
         chartData: undefined,
-      }
+      },
     },
     weatherDataCache: {},
   };
 }
 
 const WeatherContext = createContext<WeatherContextType | undefined>(undefined);
-
 
 function weatherReducer(
   state: WeatherState,
@@ -147,6 +92,20 @@ export function WeatherProvider({ children }: { children: React.ReactNode }) {
       });
 
       dispatch({
+        type: WeatherActionType.SetWeatherCards,
+        payload: {
+          startData: {
+            dayData: undefined,
+            chartData: undefined,
+          },
+          endData: {
+            dayData: undefined,
+            chartData: undefined,
+          },
+        },
+      });
+
+      dispatch({
         type: WeatherActionType.SetWeatherDataCache,
         payload: {},
       });
@@ -168,22 +127,20 @@ export function WeatherProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    try{
+    try {
       const { startData, endData } = await fetchWeatherData({
         location: state.selectedLocation,
         startDate,
         endDate,
       });
 
-      // console.log(startData?.conditions, endData?.conditions, endData?.icon, startData?.icon)
-   
       if (!startData || !endData) return;
-  
-      const processedStartData = processHourlyWeatherData(startData.days[0]?.hours)
-      const processedEndData = processHourlyWeatherData(endData.days[0]?.hours)
-  
-      console.log({processedStartData, processedEndData})
-  
+
+      const processedStartData = processHourlyWeatherData(
+        startData.days[0]?.hours
+      );
+      const processedEndData = processHourlyWeatherData(endData.days[0]?.hours);
+
       dispatch({
         type: WeatherActionType.SetWeatherCards,
         payload: {
@@ -194,10 +151,10 @@ export function WeatherProvider({ children }: { children: React.ReactNode }) {
           endData: {
             dayData: endData,
             chartData: processedEndData,
-          }
+          },
         },
       });
-  
+
       dispatch({
         type: WeatherActionType.SetWeatherDataCache,
         payload: {
@@ -209,20 +166,18 @@ export function WeatherProvider({ children }: { children: React.ReactNode }) {
           [endDate]: {
             dayData: endData,
             chartData: processedEndData,
-          }
+          },
         },
       });
     } catch (error: unknown) {
       const err = error as { response: { data: string } };
       console.log(err?.response?.data);
-      if(err?.response?.data.includes("Invalid location")) {
+      if (err?.response?.data.includes("Invalid location")) {
         toast.error("Invalid location. Please try a different location");
         return;
       }
       toast.error("Failed to fetch weather data");
     }
-
-
   }
 
   function handleNavigate(multiplier: 1 | -1) {
@@ -242,21 +197,18 @@ export function WeatherProvider({ children }: { children: React.ReactNode }) {
     getWeatherData();
   }, [state.selectedLocation, state.startDate]);
 
-  
   return (
     <WeatherContext.Provider
       value={{
         ...state,
         updateLocation,
         updateDayOfTheWeek: (selectedDay: DayOption) => {
-
           const updatedStartDate = getInitialStartDate(selectedDay.value);
 
           dispatch({
             type: WeatherActionType.SetStartDate,
             payload: updatedStartDate,
           });
-
 
           dispatch({
             type: WeatherActionType.SetSelectedDay,

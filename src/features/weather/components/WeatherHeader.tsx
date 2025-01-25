@@ -1,4 +1,4 @@
-import WeatherIOLogo from "./icons/WeatherIOLogo";
+import WeatherIOLogo from "../../../components/icons/WeatherIOLogo";
 
 export default function WeatherHeader() {
   return (

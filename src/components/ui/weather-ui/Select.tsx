@@ -30,11 +30,11 @@ export default function Select<T extends Option>({
   prefix,
 }: SelectInputProps<T>) {
   function handleSelection(value: string) {
-    // Find the selected option based on the value passed by onValueChange
+
     const option = options.find((option) => String(option.value) === value);
     
     if (option) {
-      updateSelection(option); // Update the selection in the parent component
+      updateSelection(option);
     }
   }
 

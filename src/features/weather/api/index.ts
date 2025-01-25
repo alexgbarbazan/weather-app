@@ -5,7 +5,6 @@ async function fetchWeatherDataByDate(
   location: string,
   startDate: number
 ): Promise<WeatherAPIResponse | undefined> {
-  // const apiKey = "ZQRL89WGEUPY47MKQ3A72EURW";
   const apiKey = "JVUB8S2QAF38XNT9KDVTFWEVM";
 
   const response = await axios.post(

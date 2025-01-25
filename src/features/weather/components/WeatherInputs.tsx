@@ -26,7 +26,6 @@ export default function WeatherInputs() {
         icon={<LocationIcon />}
       />
       <div className="flex items-center w-full gap-4">
-        {/* <div className="flex items-center gap-1"> */}
         <Select
           options={daysOptions}
           selectedOption={selectedDay}
@@ -35,12 +34,10 @@ export default function WeatherInputs() {
           prefix={
             <div className="flex items-center gap-1 mr-2">
               <CalendarIcon />
-
               <span>Every:</span>
             </div>
           }
         />
-        {/* </div> */}
         <Select
           options={dayPeriods}
           selectedOption={selectedPeriod}

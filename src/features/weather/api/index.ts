@@ -5,7 +5,7 @@ async function fetchWeatherDataByDate(
   location: string,
   startDate: number
 ): Promise<WeatherAPIResponse | undefined> {
-  const apiKey = "JVUB8S2QAF38XNT9KDVTFWEVM";
+  const apiKey = "";
 
   const response = await axios.post(
     "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline",
